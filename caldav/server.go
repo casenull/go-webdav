@@ -371,6 +371,18 @@ func (b *backend) PropFind(r *http.Request, propfind *internal.PropFind, depth i
 	var resps []internal.Response
 
 	switch resType {
+	case resourceTypeRoot:
+		principalPath, err := b.Backend.CurrentUserPrincipal(r.Context())
+		if err != nil {
+			return nil, err
+		}
+		if strings.HasPrefix(principalPath, r.URL.Path) {
+			resp, err := b.propFindUserPrincipal(r.Context(), propfind)
+			if err != nil {
+				return nil, err
+			}
+			resps = append(resps, *resp)
+		}
 	case resourceTypeUserPrincipal:
 		principalPath, err := b.Backend.CurrentUserPrincipal(r.Context())
 		if err != nil {
